@@ -63,7 +63,6 @@ AppAsset::register($this);
         <?= $content ?>
     </div>
 </div>
-
 <footer class="footer">
     <div class="container">
         <p class="pull-left">&copy; SIMS <?= date('Y') ?></p>

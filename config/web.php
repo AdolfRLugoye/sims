@@ -26,7 +26,15 @@ $config = [
             // send all mails to a file by default. You have to set
             // 'useFileTransport' to false and configure a transport
             // for the mailer to send real emails.
-            'useFileTransport' => true,
+            //'useFileTransport' => false,
+            'transport' => [
+            'class' => 'Swift_SmtpTransport',
+            'host' => 'smtp.gmail.com',
+            'username' => 'arlugoye@gmail.com',
+            'password' => 'cazcwxmjxuznencn',
+            'port' => '587',
+            'encryption' => 'tls',
+                        ],
         ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
@@ -46,7 +54,36 @@ $config = [
             ],
         ],
         */
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager', // or use 'yii\rbac\PhpManager'
+        ]
     ],
+    'modules' => [
+        'admin' => [
+           // 'class' => 'mdm\admin\Module',
+           'class' => '\app\modules\admin\Module'
+        ],
+        'registration' => [
+           'class' => '\app\modules\registration\Module'
+        ],
+        
+        
+        'dynagrid'=>[
+        'class'=>'\kartik\dynagrid\Module',
+        // other settings (refer documentation)
+        ],
+        'gridview'=>[
+        'class'=>'\kartik\grid\Module',
+        // other module settings
+        ],
+    ],
+    
+//    'as access' => [
+//        'class' => 'mdm\admin\components\AccessControl',
+//        'allowActions' => [
+//            'admin/*', // add or remove allowed actions to this list
+//        ],
+//    ],
     'params' => $params,
 ];
 

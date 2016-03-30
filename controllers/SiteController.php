@@ -8,6 +8,10 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\SignupForm;
+use app\models\PasswordResetRequestForm;
+use app\models\ResetPasswordForm;
+use app\models\User;
 
 class SiteController extends Controller
 {
@@ -91,4 +95,75 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+    
+    //Signup action for signing up into the up
+    
+    public function actionSignup()
+    {
+        $model = new SignupForm();
+        if ($model->load(Yii::$app->request->post())) {
+            
+            if ($user = $model->signup()) {
+                if (Yii::$app->getUser()->login($user)) {
+                    return $this->goHome();
+                }
+            }
+            
+        }
+        return $this->render('signup', ['model'=>$model,]);
+    }
+    
+     /**
+     * Requests password reset.
+     *
+     * @return mixed
+     */
+    public function actionRequestPasswordReset()
+    {
+        $model = new PasswordResetRequestForm();
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            if ($model->sendEmail()) {
+                Yii::$app->session->setFlash('success', 'Check your email for further instructions.');
+                return $this->goHome();
+            } else {
+                Yii::$app->session->setFlash('error', 'Sorry, we are unable to reset password for email provided.');
+            }
+        }
+        return $this->render('requestPasswordResetToken', [
+            'model' => $model,
+        ]);
+    }
+    /**
+     * Resets password.
+     *
+     * @param string $token
+     * @return mixed
+     * @throws BadRequestHttpException
+     */
+   public function actionResetPassword($token)
+{
+       if (empty($token) || is_array($token)) {
+			throw new BadRequestHttpException('Invalid password reset token.');
+		}
+
+       
+    $model = User::find([
+        'password_reset_token' => $token,
+        'status' => User::STATUS_ACTIVE,
+    ]);
+
+   if ($model === null) {
+        throw new BadRequestHttpException('Wrong password reset token.');
+    }
+
+   // $model->scenario = 'resetPassword';
+    if ($model->load($_POST) && $model->resetPassword() && $model->save()) {
+        Yii::$app->getSession()->setFlash('success', 'New password was saved.');
+        return $this->goHome();
+    }
+
+    return $this->render('resetPassword', [
+        'model' => $model,
+    ]);
+}
 }
